@@ -3,7 +3,7 @@ import pwd
 from ConfigParser import RawConfigParser, NoOptionError
 
 
-class Config():
+class Config:
 
     """
     Load and access the carbonate configuration.

@@ -3,6 +3,7 @@ env:
   - TOXENV=py27
   - TOXENV=py27-pre0_9_10
   - TOXENV=lint
+  - TOXENV=lint3
 install:
   - pip install tox
 script:

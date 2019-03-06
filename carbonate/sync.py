@@ -23,7 +23,7 @@ def sync_from_remote(sync_file, remote, staging, rsync_options):
                         sync_file.name, remote, staging
                         ])
 
-        print "  - Rsyncing metrics"
+        print("  - Rsyncing metrics")
 
         proc = subprocess.Popen(cmd,
                                 shell=True,
@@ -34,7 +34,7 @@ def sync_from_remote(sync_file, remote, staging, rsync_options):
             sys.stdout.write(l)
             sys.stdout.flush()
     except subprocess.CalledProcessError as e:
-        logging.warn("Failed to sync from %s! %s" % (remote, e))
+        logging.warninging("Failed to sync from %s! %s" % (remote, e))
 
 
 def sync_batch(metrics_to_heal, lock_writes=False, overwrite=False):
@@ -53,7 +53,7 @@ def sync_batch(metrics_to_heal, lock_writes=False, overwrite=False):
                       "Avg: %fs  Time Left: %ss (%d%%)" \
                       % (sync_count, sync_total, sync_avg,
                          sync_remain, sync_percent)
-        print status_line
+        print(status_line)
 
         # Do not try healing data past the point they were rsync'd
         # as we would not have new points in staging anyway.
@@ -85,10 +85,10 @@ def heal_metric(source, dest, start_time=0, end_time=None, overwrite=False,
             except CorruptWhisperFile as e:
                 if e.path == source:
                     # The source file is corrupt, we bail
-                    logging.warn("Source file corrupt, skipping: %s" % source)
+                    logging.warning("Source file corrupt, skipping: %s" % source)
                 else:
                     # Do it the old fashioned way...possible data loss
-                    logging.warn("Overwriting corrupt file: %s" % dest)
+                    logging.warning("Overwriting corrupt file: %s" % dest)
                     try:
                         os.makedirs(os.path.dirname(dest))
                     except os.error:
@@ -97,13 +97,13 @@ def heal_metric(source, dest, start_time=0, end_time=None, overwrite=False,
                         # Make a backup of corrupt file
                         corrupt = dest + ".corrupt"
                         shutil.copyfile(dest, corrupt)
-                        logging.warn("Corrupt file saved as %s" % corrupt)
+                        logging.warning("Corrupt file saved as %s" % corrupt)
                         shutil.copyfile(source, dest)
                     except IOError as e:
-                        logging.warn("Failed to copy %s! %s" % (dest, e))
+                        logging.warning("Failed to copy %s! %s" % (dest, e))
             except Exception as e:
-                logging.warn("Exception during heal: %s" % str(e))
-                logging.warn("Skipping heal: %s => %s" % (source, dest))
+                logging.warning("Exception during heal: %s" % str(e))
+                logging.warning("Skipping heal: %s => %s" % (source, dest))
     except IOError:
         try:
             os.makedirs(os.path.dirname(dest))
@@ -112,7 +112,7 @@ def heal_metric(source, dest, start_time=0, end_time=None, overwrite=False,
         try:
             shutil.copyfile(source, dest)
         except IOError as e:
-            logging.warn("Failed to copy %s! %s" % (dest, e))
+            logging.warning("Failed to copy {}! {}".format(dest, e))
 
 
 def run_batch(metrics_to_sync, remote, local_storage, rsync_options,
@@ -122,11 +122,11 @@ def run_batch(metrics_to_sync, remote, local_storage, rsync_options,
 
     metrics_to_heal = []
 
-    staging = "%s/" % (staging_dir)
+    staging = "{}/".format(staging_dir)
 
     for metric in metrics_to_sync:
-        staging_file = "%s/%s" % (staging_dir, metric)
-        local_file = "%s/%s" % (local_storage, metric)
+        staging_file = "{}/{}".format(staging_dir, metric)
+        local_file = "{}/{}".format(local_storage, metric)
         metrics_to_heal.append((staging_file, local_file))
 
     sync_file.write("\n".join(metrics_to_sync))
@@ -143,14 +143,16 @@ def run_batch(metrics_to_sync, remote, local_storage, rsync_options,
 
     total_time = rsync_elapsed + merge_elapsed
 
-    print "    --------------------------------------"
-    print "    Rsync time: %ss" % rsync_elapsed
-    print "    Merge time: %ss" % merge_elapsed
-    print "    Total time: %ss" % total_time
+    print('''
+        --------------------------------------"
+        Rsync time: {}s
+        Merge time: {}s
+        Total time: {}s
+    '''.format(rsync_elapsed, merge_elapsed, total_time))
 
     # Cleanup
     if dirty:
-        print "    dirty mode: left temporary directory %s" % staging_dir
+        print("    dirty mode: left temporary directory {}".format(staging_dir))
     else:
         rmtree(staging_dir)
 

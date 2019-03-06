@@ -22,7 +22,6 @@ from .util import (
 from .config import Config
 from .cluster import Cluster
 
-
 STORAGE_DIR = '/opt/graphite/storage/whisper'
 
 
@@ -36,7 +35,7 @@ def carbon_hosts():
 
     cluster_hosts = [d[0] for d in cluster.destinations]
 
-    print "\n".join(cluster_hosts)
+    print("\n".join(cluster_hosts))
 
 
 def carbon_list():
@@ -56,7 +55,7 @@ def carbon_list():
 
     try:
         for m in listMetrics(args.storage_dir, args.follow_sym_links):
-            print m
+            print(m)
     except IOError as e:
         if e.errno == errno.EPIPE:
             pass  # we got killed, lol
@@ -90,7 +89,7 @@ def carbon_lookup():
         for i, _ in enumerate(results):
             results[i] = results[i].split(':')[0]
 
-    print "\n".join(results)
+    print("\n".join(results))
 
 
 def carbon_sieve():
@@ -130,7 +129,7 @@ def carbon_sieve():
         for metric in metrics:
             m = metric.strip()
             for match in filterMetrics([m], match_dests, cluster, invert):
-                print metric.strip()
+                print(metric.strip())
     except KeyboardInterrupt:
         sys.exit(1)
 
@@ -138,7 +137,7 @@ def carbon_sieve():
 def carbon_sync():
     parser = common_parser(
         'Sync local metrics using remote nodes in the cluster'
-        )
+    )
 
     parser.add_argument(
         '-f', '--metrics-file',
@@ -170,7 +169,7 @@ def carbon_sync():
         '--rsync-options',
         default='-azpS',
         help='Pass option(s) to rsync. Make sure to use ' +
-        '"--rsync-options=" if option starts with \'-\'')
+             '"--rsync-options=" if option starts with \'-\'')
 
     parser.add_argument(
         '--dirty',
@@ -218,8 +217,7 @@ def carbon_sync():
         metrics_to_sync.append(mpath)
 
         if total_metrics % batch_size == 0:
-            print "* Running batch %s-%s" \
-                  % (total_metrics-batch_size+1, total_metrics)
+            print("* Running batch {}-{}".format(total_metrics - batch_size + 1, total_metrics))
             run_batch(metrics_to_sync, remote,
                       args.storage_dir, args.rsync_options,
                       remote_ip, args.dirty, lock_writes=whisper_lock_writes,
@@ -227,19 +225,20 @@ def carbon_sync():
             metrics_to_sync = []
 
     if len(metrics_to_sync) > 0:
-        print "* Running batch %s-%s" \
-              % (total_metrics-len(metrics_to_sync)+1, total_metrics)
+        print("* Running batch {}-{}".format(total_metrics - len(metrics_to_sync) + 1, total_metrics))
         run_batch(metrics_to_sync, remote,
                   args.storage_dir, args.rsync_options,
                   remote_ip, args.dirty, lock_writes=whisper_lock_writes)
 
     elapsed = (time() - start)
 
-    print ""
-    print "* Sync Report"
-    print "  ========================================"
-    print "  Total metrics synced: %s" % total_metrics
-    print "  Total time: %ss" % elapsed
+    print('''
+    
+    * Sync Report
+      ========================================
+      Total metrics synced: {}
+      Total time: {}s
+    '''.format(total_metrics, elapsed))
 
 
 def carbon_path():
@@ -253,7 +252,7 @@ def carbon_path():
         '-f', '--metrics-file',
         default='-',
         help='File containing metric names to transform to file paths, or ' +
-        '\'-\' to read from STDIN')
+             '\'-\' to read from STDIN')
 
     parser.add_argument(
         '-r', '--reverse',
@@ -283,7 +282,7 @@ def carbon_path():
         func = partial(metric_to_fs, prepend=prepend)
 
     for metric in metrics:
-        print func(metric)
+        print(func(metric))
 
 
 def carbon_stale():
@@ -297,7 +296,7 @@ def carbon_stale():
         '-f', '--metrics-file',
         default='-',
         help='File containing metric names to scan for staleness, or ' +
-        '\'-\' to read from STDIN')
+             '\'-\' to read from STDIN')
 
     parser.add_argument(
         '-r', '--reverse',
@@ -337,7 +336,7 @@ def carbon_stale():
         passed = (data if use_whisper else stat)(path, args.limit, args.offset)
         value = path if args.paths else fs_to_metric(path, prepend=prefix)
         if (not passed) if args.reverse else passed:
-            print value
+            print(value)
 
 
 def whisper_aggregate():
@@ -373,8 +372,8 @@ def whisper_aggregate():
             if mode is not None:
                 path = metric_to_fs(name, prepend=args.storage_dir)
                 metrics_count = metrics_count + setAggregation(path, mode)
-        except ValueError, exc:
-            logging.warning("Unable to parse '%s' (%s)" % (metric, str(exc)))
+        except ValueError as exc:
+            logging.warning("Unable to parse '{}' ({})".format(metric, str(exc)))
 
     logging.info('Successfully set aggregation mode for ' +
                  '%d of %d metrics' % (metrics_count, len(metrics)))

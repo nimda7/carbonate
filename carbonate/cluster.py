@@ -18,7 +18,7 @@ except ImportError as e:
     raise SystemExit("No bueno. Can't import carbon! (" + str(e) + ")")
 
 
-class Cluster():
+class Cluster:
     def __init__(self, config, cluster='main'):
         # Support multiple versions of carbon, the API changed in 0.10.
         args = inspect.getargspec(ConsistentHashingRouter.__init__).args
