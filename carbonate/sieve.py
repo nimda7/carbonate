@@ -5,7 +5,7 @@ map_short = partial(map, lambda m: m[0])
 
 
 def filterMetrics(inputs, node, cluster, invert=False, filter_long=False):
-    if isinstance(node, basestring):
+    if isinstance(node, (str, bytes)):
         match = [node]
     else:
         match = node

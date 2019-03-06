@@ -34,7 +34,7 @@ def sync_from_remote(sync_file, remote, staging, rsync_options):
             sys.stdout.write(l)
             sys.stdout.flush()
     except subprocess.CalledProcessError as e:
-        logging.warninging("Failed to sync from %s! %s" % (remote, e))
+        logging.warning("Failed to sync from %s! %s" % (remote, e))
 
 
 def sync_batch(metrics_to_heal, lock_writes=False, overwrite=False):
